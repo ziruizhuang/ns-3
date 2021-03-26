@@ -5,7 +5,7 @@ all:
 
 # free free to change this part to suit your requirements
 configure:
-	./waf configure --enable-examples --enable-tests
+	./waf configure --build-profile=debug --enable-examples --enable-tests --with-nsclick=../click --enable-mpi
 
 build:
 	./waf build
