@@ -1,4 +1,5 @@
 # Makefile wrapper for waf
+.PHONY: all configure build test clean
 
 all:
 	./waf
