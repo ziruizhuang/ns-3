@@ -38,3 +38,11 @@ build/
 /.project
 
 version.cache
+
+.idea/
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.*
+obj/
+Debug/
