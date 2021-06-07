@@ -49,6 +49,8 @@
 #include "ns3/traffic-control-layer.h"
 #include <limits>
 #include <map>
+#include "ns3/ipv4-drb-helper.h"
+#include "ns3/tcp-l4-protocol.h"
 
 namespace ns3 {
 
@@ -107,7 +109,8 @@ InternetStackHelper::InternetStackHelper ()
     m_ipv4Enabled (true),
     m_ipv6Enabled (true),
     m_ipv4ArpJitterEnabled (true),
-    m_ipv6NsRsJitterEnabled (true)
+    m_ipv6NsRsJitterEnabled (true),
+    m_drb (false)
 
 {
   Initialize ();
@@ -183,6 +186,24 @@ InternetStackHelper::SetRoutingHelper (const Ipv6RoutingHelper &routing)
 {
   delete m_routingv6;
   m_routingv6 = routing.Copy ();
+}
+
+void
+InternetStackHelper::SetDrb (bool enable)
+{
+  m_drb = enable;
+}
+
+void
+InternetStackHelper::SetTLB (bool enable)
+{
+  m_TLBEnabled = enable;
+}
+
+void
+InternetStackHelper::SetClove (bool enable)
+{
+  m_cloveEnabled = enable;
 }
 
 void
@@ -300,6 +321,15 @@ InternetStackHelper::Install (Ptr<Node> node) const
           return;
         }
 
+      if (m_TLBEnabled)
+        {
+          CreateAndAggregateObjectFromTypeId (node, "ns3::Ipv4TLB");
+        }
+      if (m_cloveEnabled)
+        {
+          CreateAndAggregateObjectFromTypeId (node, "ns3::Ipv4Clove");
+        }
+
       CreateAndAggregateObjectFromTypeId (node, "ns3::ArpL3Protocol");
       CreateAndAggregateObjectFromTypeId (node, "ns3::Ipv4L3Protocol");
       CreateAndAggregateObjectFromTypeId (node, "ns3::Icmpv4L4Protocol");
@@ -312,6 +342,12 @@ InternetStackHelper::Install (Ptr<Node> node) const
       // Set routing
       Ptr<Ipv4> ipv4 = node->GetObject<Ipv4> ();
       Ptr<Ipv4RoutingProtocol> ipv4Routing = m_routing->Create (node);
+      // DRB support
+      if (m_drb && DynamicCast<Ipv4ListRouting>(ipv4Routing))
+        {
+          Ipv4DrbHelper drbHelper;
+          (DynamicCast<Ipv4ListRouting>(ipv4Routing))->SetDrb(drbHelper.Create (node));
+        }
       ipv4->SetRoutingProtocol (ipv4Routing);
     }
 

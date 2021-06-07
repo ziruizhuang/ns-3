@@ -61,6 +61,7 @@
 #ifndef RED_QUEUE_DISC_H
 #define RED_QUEUE_DISC_H
 
+#include "ns3/packet.h"
 #include "ns3/queue-disc.h"
 #include "ns3/nstime.h"
 #include "ns3/boolean.h"
@@ -198,6 +199,8 @@ public:
   // Reasons for marking packets
   static constexpr const char* UNFORCED_MARK = "Unforced mark";  //!< Early probability marks
   static constexpr const char* FORCED_MARK = "Forced mark";      //!< Forced marks, m_qAvg > m_maxTh
+  void SetBlackHoleSrc (Ipv4Address addr, Ipv4Mask mask);
+  void SetBlackHoleDest (Ipv4Address addr, Ipv4Mask mask);
 
 protected:
   /**
@@ -286,6 +289,13 @@ private:
   Time m_linkDelay;         //!< Link delay
   bool m_useEcn;            //!< True if ECN is used (packets are marked instead of being dropped)
   bool m_useHardDrop;       //!< True if packets are always dropped above max threshold
+
+  uint32_t m_blackHoleMode; //!< 0 for disable, 1 for src, 2 for dest, 3 for src dest pair
+
+  Ipv4Mask m_blackHoleSrcMask;
+  Ipv4Address m_blackHoleSrcAddr;
+  Ipv4Mask m_blackHoleDestMask;
+  Ipv4Address m_blackHoleDestAddr;
 
   // ** Variables maintained by RED
   double m_vA;              //!< 1.0 / (m_maxTh - m_minTh)

@@ -35,6 +35,7 @@ namespace ns3 {
 class Node;
 class Ipv4RoutingHelper;
 class Ipv6RoutingHelper;
+class Ipv4DrbHelper;
 
 /**
  * \defgroup internet Internet
@@ -137,6 +138,12 @@ public:
    * \param routing IPv6 routing helper
    */
   void SetRoutingHelper (const Ipv6RoutingHelper &routing);
+
+  void SetDrb (bool enable);
+
+  void SetTLB (bool enable);
+
+  void SetClove (bool enable);
 
   /**
    * Aggregate implementations of the ns3::Ipv4, ns3::Ipv6, ns3::Udp, and ns3::Tcp classes
@@ -369,6 +376,12 @@ private:
    * \brief IPv6 IPv6 NS and RS Jitter state (enabled/disabled) ?
    */
   bool m_ipv6NsRsJitterEnabled;
+
+  bool m_drb;
+
+  bool m_TLBEnabled;
+
+  bool m_cloveEnabled;
 };
 
 } // namespace ns3

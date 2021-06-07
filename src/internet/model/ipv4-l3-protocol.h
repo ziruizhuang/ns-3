@@ -110,6 +110,8 @@ public:
    * \param node node to set
    */
   void SetNode (Ptr<Node> node);
+  
+  Ptr<Node> GetNode (void);
 
   // functions defined in base class Ipv4
 

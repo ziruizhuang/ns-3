@@ -104,7 +104,7 @@ def configure(conf):
 
 def build(bld):
     # bridge dependency is due to global routing
-    obj = bld.create_ns3_module('internet', ['bridge', 'traffic-control', 'network', 'core'])
+    obj = bld.create_ns3_module('internet', ['bridge', 'traffic-control', 'network', 'core', 'tlb', 'clove'])
     obj.source = [
         'model/ip-l4-protocol.cc',
         'model/udp-header.cc',
@@ -232,6 +232,16 @@ def build(bld):
         'model/rip.cc',
         'model/rip-header.cc',
         'helper/rip-helper.cc',
+        # ZZR USED BY LB
+        'model/ipv4-xpath-tag.cc',
+        'model/ipv4-drb.cc',
+        'model/ipv4-drb-tag.cc',
+        'model/ipv4-ecn-tag.cc',
+        'model/ipv4-tlb-probing-tag.cc',
+        'helper/ipv4-drb-helper.cc',
+        'model/tcp-resequence-buffer.cc',
+        'model/tcp-flow-bender.cc',
+        'model/tcp-pause-buffer.cc',
         ]
 
     internet_test = bld.create_ns3_module_test_library('internet')
@@ -439,6 +449,16 @@ def build(bld):
         'model/rip.h',
         'model/rip-header.h',
         'helper/rip-helper.h',
+        # ZZR USED BY LB
+        'model/ipv4-xpath-tag.h',
+        'model/ipv4-drb.h',
+        'model/ipv4-drb-tag.h',
+        'model/ipv4-ecn-tag.h',
+        'model/ipv4-tlb-probing-tag.h',
+        'helper/ipv4-drb-helper.h',
+        'model/tcp-resequence-buffer.h',
+        'model/tcp-flow-bender.h',
+        'model/tcp-pause-buffer.h',
        ]
 
     if bld.env['NSC_ENABLED']:

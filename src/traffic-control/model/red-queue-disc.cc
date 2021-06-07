@@ -64,6 +64,8 @@
 #include "ns3/abort.h"
 #include "red-queue-disc.h"
 #include "ns3/drop-tail-queue.h"
+#include "ns3/ipv4-header.h"
+#include "ns3/ipv4-queue-disc-item.h"
 
 namespace ns3 {
 
@@ -336,10 +338,57 @@ RedQueueDisc::AssignStreams (int64_t stream)
   return 1;
 }
 
+void
+RedQueueDisc::SetBlackHoleSrc (Ipv4Address addr, Ipv4Mask mask)
+{
+  m_blackHoleSrcMask = mask;
+  m_blackHoleSrcAddr = addr;
+}
+
+void
+RedQueueDisc::SetBlackHoleDest (Ipv4Address addr, Ipv4Mask mask)
+{
+  m_blackHoleDestMask = mask;
+  m_blackHoleDestAddr = addr;
+}
+
 bool
 RedQueueDisc::DoEnqueue (Ptr<QueueDiscItem> item)
 {
   NS_LOG_FUNCTION (this << item);
+
+  if (m_blackHoleMode > 0)
+    {
+      Ptr<Ipv4QueueDiscItem> ipv4Item = DynamicCast<Ipv4QueueDiscItem> (item);
+      if (ipv4Item != 0)
+        {
+          Ipv4Header header = ipv4Item->GetHeader ();
+          bool blackHoleHit = false; // Twisting Nether !!!
+          if (m_blackHoleMode == 1)
+            {
+              blackHoleHit = m_blackHoleSrcMask.IsMatch (header.GetSource (), m_blackHoleSrcAddr);
+            }
+          else if (m_blackHoleMode == 2)
+            {
+              blackHoleHit =
+                  m_blackHoleDestMask.IsMatch (header.GetDestination (), m_blackHoleDestAddr);
+            }
+          else if (m_blackHoleMode == 3)
+            {
+              blackHoleHit =
+                  m_blackHoleSrcMask.IsMatch (header.GetSource (), m_blackHoleSrcAddr) &&
+                  m_blackHoleDestMask.IsMatch (header.GetDestination (), m_blackHoleDestAddr);
+            }
+
+          if (blackHoleHit)
+            {
+//              m_stats.forcedDrop++;
+              // TODO: ZZR, check if DropBeforeEnqueue is a good substitution for Drop
+              DropBeforeEnqueue(item, FORCED_DROP);
+              return false;
+            }
+        }
+    }
 
   uint32_t nQueued = GetInternalQueue (0)->GetCurrentSize ().GetValue ();
 

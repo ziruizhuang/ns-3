@@ -73,6 +73,9 @@ public:
    * created with the helpers.
    */
   void Add (const Ipv4RoutingHelper &routing, int16_t priority);
+
+  void Clear (void);
+
   /**
    * \param node the node on which the routing protocol will run
    * \returns a newly-created routing protocol

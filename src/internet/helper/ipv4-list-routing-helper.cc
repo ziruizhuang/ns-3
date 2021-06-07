@@ -57,6 +57,12 @@ Ipv4ListRoutingHelper::Add (const Ipv4RoutingHelper &routing, int16_t priority)
   m_list.push_back (std::make_pair (const_cast<const Ipv4RoutingHelper *> (routing.Copy ()), priority));
 }
 
+void
+Ipv4ListRoutingHelper::Clear (void)
+{
+  m_list.clear ();
+}
+
 Ptr<Ipv4RoutingProtocol> 
 Ipv4ListRoutingHelper::Create (Ptr<Node> node) const
 {

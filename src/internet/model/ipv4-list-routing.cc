@@ -23,6 +23,7 @@
 #include "ns3/node.h"
 #include "ns3/ipv4-static-routing.h"
 #include "ipv4-list-routing.h"
+#include "ipv4-drb-tag.h"
 
 namespace ns3 {
 
@@ -43,7 +44,7 @@ Ipv4ListRouting::GetTypeId (void)
 
 
 Ipv4ListRouting::Ipv4ListRouting () 
-  : m_ipv4 (0)
+  : m_ipv4 (0), m_drb (0)
 {
   NS_LOG_FUNCTION (this);
 }
@@ -67,6 +68,7 @@ Ipv4ListRouting::DoDispose (void)
     }
   m_routingProtocols.clear ();
   m_ipv4 = 0;
+  m_drb = 0;
 }
 
 void
@@ -296,6 +298,17 @@ Ipv4ListRouting::Compare (const Ipv4RoutingProtocolEntry& a, const Ipv4RoutingPr
   return a.first > b.first;
 }
 
+void
+Ipv4ListRouting::SetDrb(Ptr<Ipv4Drb> drb)
+{
+  m_drb = drb;
+}
+
+Ptr<Ipv4Drb>
+Ipv4ListRouting::GetDrb ()
+{
+  return m_drb;
+}
 
 } // namespace ns3
 

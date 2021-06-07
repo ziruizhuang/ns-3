@@ -32,6 +32,10 @@
 #include "ns3/data-rate.h"
 #include "ns3/node.h"
 #include "ns3/tcp-socket-state.h"
+#include "tcp-resequence-buffer.h"
+#include "tcp-flow-bender.h"
+#include "ns3/ipv4-tlb.h"
+#include "tcp-pause-buffer.h"
 
 namespace ns3 {
 
@@ -216,6 +220,7 @@ public:
  */
 class TcpSocketBase : public TcpSocket
 {
+  friend class TcpResequenceBuffer;
 public:
   /**
    * Get the type ID.
@@ -321,6 +326,12 @@ public:
    * \brief Callback pointer for pacing rate trace chaining
    */
   TracedCallback<DataRate, DataRate>  m_pacingRateTrace;
+
+  /**
+   * \brief Get a pointer to the Resequence buffer
+   * \return a pointer to the resequence buffer
+   */
+  Ptr<TcpResequenceBuffer> GetResequenceBuffer (void) const;
 
   /**
    * \brief Callback pointer for cWnd trace chaining
@@ -1204,6 +1215,14 @@ protected:
    */
   static uint32_t SafeSubtraction (uint32_t a, uint32_t b);
 
+  void AttachFlowId (Ptr<Packet> packet, const Ipv4Address &saddr, const Ipv4Address &daddr,
+                     uint16_t sport, uint16_t dport);
+
+  uint32_t CalFlowId (const Ipv4Address &saddr, const Ipv4Address &daddr,
+                      uint16_t sport, uint16_t dport);
+
+  void RecoverFromPause (void);
+
   /**
    * \brief Notify Pacing
    */
@@ -1348,6 +1367,40 @@ protected:
   TracedValue<SequenceNumber32> m_ecnEchoSeq {0};      //!< Sequence number of the last received ECN Echo
   TracedValue<SequenceNumber32> m_ecnCESeq   {0};      //!< Sequence number of the last received Congestion Experienced
   TracedValue<SequenceNumber32> m_ecnCWRSeq  {0};      //!< Sequence number of the last sent CWR
+
+  // Resequence buffer
+  bool m_resequenceBufferEnabled;   //!< Whether resequence buffer is enabled
+  Ptr<TcpResequenceBuffer>  m_resequenceBuffer;     //!< Resequence buffer
+
+  // Flow Bender
+  bool m_flowBenderEnabled;         //!< Whether the flow bender is enabled
+  Ptr<TcpFlowBender>        m_flowBender;           //!< Flow Bender
+
+  // TLB Support
+  bool                      m_TLBEnabled;
+
+  bool                      m_TLBSendSide;
+  bool                      m_piggybackTLBInfo;
+  Time                      m_onewayRtt;
+  uint32_t                  m_TLBPath;
+
+  uint32_t                  m_pathAcked;
+
+  bool                      m_TLBReverseAckEnabled;
+
+  // Clove Support
+  bool                      m_CloveEnabled;
+  bool                      m_CloveSendSide;
+  bool                      m_piggybackCloveInfo;
+  uint32_t                  m_ClovePath;
+
+  // Pause Support
+  bool                      m_isPauseEnabled;
+  bool                      m_isPause;
+  uint32_t                  m_oldPath;
+
+  // Resequence buffer
+  Ptr<TcpPauseBuffer>       m_pauseBuffer;
 };
 
 /**
